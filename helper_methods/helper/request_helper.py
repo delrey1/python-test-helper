@@ -1,12 +1,11 @@
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlsplit
 
 from requests import Session
 from requests.exceptions import MissingSchema
 
 
-def check_url_schema(base_url: str):
-    # Regex? ^(http|https)://
-    if base_url.startswith("http://") or base_url.startswith("https://"):
+def check_url_schema(scheme: str):
+    if scheme in ["http", "https"]:
         return
     else:
         raise MissingSchema("Invalid URL, missing schema")
@@ -15,12 +14,14 @@ def check_url_schema(base_url: str):
 class RequestHelper(Session):
     def __init__(self, base_url: str, request_id: str = None):
         super().__init__()
-        self.base_url = base_url
+        self.base_url = base_url.rstrip("/")  # Removing trailing slash, we'll add this on later
         self.verify = False
         self.headers['request-id'] = request_id
 
-        check_url_schema(base_url)
+        split_url = urlsplit(base_url)
 
-    def request(self, method, url, *args, **kwargs):
-        joined_url = urljoin(self.base_url, url)
+        check_url_schema(split_url.scheme)
+
+    def request(self, method, url: str, *args, **kwargs):
+        joined_url = urljoin(self.base_url + "/", url.lstrip("/"))
         return super().request(method, joined_url, *args, **kwargs)
