@@ -13,7 +13,7 @@ NAME = "python_test_helper"
 
 setup(
     name=NAME,
-    version='0.0.1',
+    version='0.0.2',
     description="Simple Methods to help you in your tests",
     keywords=["python"],
     long_description=readme,
